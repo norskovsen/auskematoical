@@ -18,7 +18,7 @@ I have only tested the script on Google Calendar and thus I don't know whether i
 
 Goto: https://timetable.scitech.au.dk/apps/skema/VaelgElevskema.asp?webnavn=skema&sprog=da
 
-![step1](/home/martin/Dropbox/Projekter/Python/Skema-iCal/img/step1.png)
+![step1](img/step1.png)
 
 and login with your AU credentials
 
@@ -28,13 +28,13 @@ and login with your AU credentials
 
 Download the HTML page by pressing Ctrl+S
 
-![step2](/home/martin/Dropbox/Projekter/Python/Skema-iCal/img/step2.png)
+![step2](img/step2.png)
 
 **Step 3:**
 
 Save the HTML page in the same folder as this repo
 
-![step3](/home/martin/Dropbox/Projekter/Python/Skema-iCal/img/step3.png)
+![step3](img/step3.png)
 
 
 
