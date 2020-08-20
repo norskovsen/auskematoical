@@ -1,17 +1,16 @@
 from bs4 import BeautifulSoup
-from icalendar import Calendar, Event, vText, vRecur
+from icalendar import Calendar, Event, vText
 from datetime import datetime
 
 WEEKDATES = ["Mandag", "Tirsdag", "Onsdag",
              "Torsdag", "Fredag", "Lørdag", "Søndag"]
-
 INPUT_FILE_NAME = 'Skema - Studerende.html'
 OUTPUT_FILE_NAME = 'skema.ics'
 LOG = False
 
 
 def log(string):
-    if log:
+    if LOG:
         print(string)
 
 
