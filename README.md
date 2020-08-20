@@ -4,7 +4,7 @@
 
 
 
-Since AU added a login page to get course information it has not been possible to export the course information to your own calendar. This is now possible using this script on your own computer without sending any login information to me. You just download the html page yourself a use the `skema.py` to get a `skema.ics` file which can be used in your favorite kalendar program such as Google Calendar.
+Since AU added a login page to get course information it has not been possible to export the course information to your own calendar. This is now possible using this script on your own computer without sending any login information to me. You just download the html page yourself and use the `skema.py` to get a `skema.ics` file which can be used in your favorite calendar program such as Google Calendar.
 
 
 
@@ -16,7 +16,7 @@ I have only tested the script on Google Calendar and thus I don't know whether i
 
 **Step 1:**
 
-Goto: https://timetable.scitech.au.dk/apps/skema/VaelgElevskema.asp?webnavn=skema&sprog=da
+Go to: https://timetable.scitech.au.dk/apps/skema/VaelgElevskema.asp?webnavn=skema&sprog=da
 
 ![step1](img/step1.png)
 
