@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 from icalendar import Calendar, Event, vText
 from datetime import datetime
 
-WEEKDATES = ["Mandag", "Tirsdag", "Onsdag",
-             "Torsdag", "Fredag", "Lørdag", "Søndag"]
+WEEKDATES = ['Mandag', 'Tirsdag', 'Onsdag',
+             'Torsdag', 'Fredag', 'Lørdag', 'Søndag']
 
 STANDARD_OUTPUT_FILE_NAME = 'skema.ics'
 
@@ -41,14 +41,14 @@ def html_to_json(file_name):
             for tr in table.find_all('tr'):
                 activity_dict = {}
                 tds = tr.find_all('td')
-                activity_dict["day"] = tds[1].get_text()
-                activity_dict["time"] = tds[2].get_text()
-                activity_dict["place"] = fix_spacing(tds[3].get_text())
-                activity_dict["weeks"] = list(tds[4].get_text().split()[1:])
+                activity_dict['day'] = tds[1].get_text().strip()
+                activity_dict['time'] = tds[2].get_text().strip()
+                activity_dict['place'] = fix_spacing(tds[3].get_text())
+                activity_dict['weeks'] = list(tds[4].get_text().split()[1:])
                 activity_list.append(activity_dict)
-            course_dict[activity.get_text()] = activity_list
+            course_dict[activity.get_text().strip()] = activity_list
 
-        courses_dict[course.get_text()] = course_dict
+        courses_dict[course.get_text().strip()] = course_dict
 
     return courses_dict
 
@@ -59,13 +59,13 @@ def get_datetime(start_week, day, time, minutes):
     time_str = str(time).zfill(2)
     min_str = str(minutes).zfill(2)
     day_str = f'{year}-W{start_week-1}-{day_idx}-{time_str}:{min_str}'
-    return datetime.strptime(day_str, "%Y-W%W-%w-%H:%M")
+    return datetime.strptime(day_str, '%Y-W%W-%w-%H:%M')
 
 
 def get_event_from_dict(course, activity_name, activity_dict, academic):
     events = []
 
-    for week in activity_dict["weeks"]:
+    for week in activity_dict['weeks']:
         event = Event()
         event.add('summary', f'{course} ({activity_name})')
         logging.info(f'Creating event: {course} ({activity_name})')
@@ -77,12 +77,12 @@ def get_event_from_dict(course, activity_name, activity_dict, academic):
         start_week, end_week = int(start_week), int(end_week)
         logging.info(f'Weeks: {start_week}-{end_week}')
 
-        day = activity_dict["day"]
-        place = activity_dict["place"]
+        day = activity_dict['day']
+        place = activity_dict['place']
         logging.info(f'Day: {day}')
         logging.info(f'Place: {place}')
 
-        start_time, end_time = map(int, activity_dict["time"].split(' - '))
+        start_time, end_time = map(int, activity_dict['time'].split(' - '))
 
         logging.info(f'Time: {start_time}:15-{end_time}:00')
 
@@ -94,9 +94,9 @@ def get_event_from_dict(course, activity_name, activity_dict, academic):
                                           start_time, start_min))
 
         event.add('dtend', get_datetime(start_week, day, end_time, '00'))
-        event.add('rrule', {"FREQ": "WEEKLY",
-                            "INTERVAL": 1,
-                            "COUNT": end_week-start_week+1})
+        event.add('rrule', {'FREQ': 'WEEKLY',
+                            'INTERVAL': 1,
+                            'COUNT': end_week-start_week+1})
         event['location'] = vText(place)
 
         events.append(event)
