@@ -4,7 +4,7 @@
 
 
 
-Since AU added a login page to get course information. It has not been possible to export the course information to your own calendar using existing third party tools. This is now possible using this script on your own computer without sending any login information to me. You just download the html page yourself and use the `skema.py` to get a `skema.ics` file which can be used in your favorite calendar program such as Google Calendar.
+Since AU added a login page to get course information. It has not been possible to export the course information to your own calendar using existing third party tools. This is now possible using this script on your own computer without sending any login information to me. You just run the `skema.py` and enter your auID and password to get a `skema.ics` file which can be used in a calendar program such as Google Calendar.
 
 
 
@@ -12,7 +12,7 @@ Since AU added a login page to get course information. It has not been possible 
 
 
 
-I have only tested the script on Google Calendar and thus I don't know whether it works on other Calendar programs such as iCal on MacOS. 
+I have only tested the script on Google Calendar and iCal on MacOS
 
 
 
@@ -24,30 +24,6 @@ If any mistakes are found please report them as issues or make a pull request. I
 
 **Step 1:**
 
-Go to: https://timetable.scitech.au.dk/apps/skema/VaelgElevskema.asp?webnavn=skema&sprog=da
-
-![step1](img/step1.png)
-
-and login with your AU credentials
-
-
-
-**Step 2:** 
-
-Download the HTML page by pressing Ctrl+S
-
-![step2](img/step2.png)
-
-**Step 3:**
-
-Save the HTML page in the same folder as this repo as `skema.html`
-
-![step3](img/step3.png)
-
-
-
-**Step 4:**
-
 Run the following command in the terminal to get the dependencies for the script
 
 ```bash
@@ -56,17 +32,34 @@ pip3 install -r requirements.txt
 
 
 
-**Step 5:**
+**Step 2:**
 
 Run
 
 ```bash
-python3 skema.py skema.html
+python3 skema.py
 ```
 
 
 
-**Step 6:**
+**Step 3:**
+
+Enter auID press enter and the your password and press enter
+
+```
+Whats your auID? au553262
+Password: 
+```
+
+
+
+**Step 4:** 
+
+If the auID and password combination is correct the program will proceed to generate the `ics` file otherwise the program will ask for your auID and password again
+
+
+
+**Step 5:**
 
 Success you now have a `skema.ics` file which you can use in your favorite calendar program
 
@@ -74,18 +67,17 @@ Success you now have a `skema.ics` file which you can use in your favorite calen
 
 ## Command line arguments
 
-The script supports the following command line arguments: 
+The script can be used with following command line arguments: 
 
 ```bash
-usage: skema.py [-h] [-l] [-n] [-o OUTPUT] filename
+usage: skema.py [-h] [-i INPUT] [-l] [-n] [-o OUTPUT]
 
-Convert skema HTML to ical file
-
-positional arguments:
-  filename              the filename of the input file ending in .html
+Retrieve AU skema as ics
 
 optional arguments:
   -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
+                        the filename of a local input file ending in .html
   -l, --logging         show the log
   -n, --notacademic     turn off academic starting time
   -o OUTPUT, --output OUTPUT

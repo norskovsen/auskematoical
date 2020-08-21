@@ -2,7 +2,9 @@ import sys
 import re
 import logging
 import argparse
+import requests
 
+from getpass import getpass
 from bs4 import BeautifulSoup
 from icalendar import Calendar, Event, vText
 from datetime import datetime
@@ -12,19 +14,59 @@ WEEKDATES = ['Mandag', 'Tirsdag', 'Onsdag',
 
 STANDARD_OUTPUT_FILE_NAME = 'skema.ics'
 
+GET_URL = 'https://timetable.scitech.au.dk/apps/skema/VaelgElevskema.asp?webnavn=skema&sprog=da'
+POST_URL = 'https://timetable.scitech.au.dk/apps/skema/ElevSkema.asp'
+
 
 def fix_spacing(string):
     return re.sub(r'\s+', ' ', string).strip()
 
 
-def html_to_json(file_name):
+def get_local_html(file_name):
+    if not re.match(r'.*\.html\b', file_name.lower()):
+        msg = ' The input filename should end with the .html extension'
+        logging.warning(msg)
+        sys.exit(-1)
+
     try:
         with open(file_name, 'rb') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')
     except FileNotFoundError:
         logging.warning(f' {file_name} does not exist')
         sys.exit(-1)
+    return soup
 
+
+def retrieve_html():
+    while True:
+        au_id = input("What is your auID? ")
+        password = getpass()
+
+        body = {
+            'ID': au_id,
+            'password': password
+        }
+
+        session = requests.session()
+        session.get(GET_URL)
+        logging.info("  Logging into AUs server")
+        html = session.post(POST_URL, body).text
+        session.close()
+
+        if "Ugyldigt" in html:
+            logging.info("  Failed logging in")
+            print("Wrong auID or password")
+            prompt = "Try again? [Y/n] "
+            if input(prompt).lower().strip == 'n':
+                sys.exit(-1)
+            else:
+                continue
+
+        logging.info("  Successfully retrieved skema info")
+        return BeautifulSoup(html, 'html.parser')
+
+
+def html_to_json(soup):
     courses_dict = {}
     courses = soup.find_all('h3')
     for i, course in enumerate(soup.find_all('h3')):
@@ -127,10 +169,10 @@ def calendar_to_file(cal, file_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-             description='Convert skema HTML to ical file')
+             description='Retrieve AU skema as ics')
 
-    parser.add_argument('input_file_name', metavar='filename',
-                        help='the filename of the input file ending in .html')
+    parser.add_argument('-i', '--input',
+                        help='the filename of a local input file ending in .html')
 
     parser.add_argument('-l', '--logging', action='store_true',
                         help='show the log')
@@ -146,12 +188,6 @@ if __name__ == '__main__':
     if args.logging:
         logging.basicConfig(level=logging.INFO)
 
-    input_file_name = args.input_file_name
-    if not re.match(r'.*\.html\b', input_file_name.lower()):
-        msg = ' The input filename should end with the .html extension'
-        logging.warning(msg)
-        sys.exit(-1)
-
     academic = not args.notacademic
 
     if args.output:
@@ -164,12 +200,18 @@ if __name__ == '__main__':
         logging.warning(msg)
         sys.exit(-1)
 
-    logging.info(f' Parsing: {input_file_name}')
+    if args.input:
+        logging.info(f' Parsing: {args.input}')
+        soup = get_local_html(args.input)
+    else:
+        logging.info(f' Retriving skema information from AUs server')
+        soup = retrieve_html()
 
-    courses_dict = html_to_json(input_file_name)
+    courses_dict = html_to_json(soup)
 
     logging.info(' Generating ics file:')
     cal = make_cal(courses_dict, academic)
 
     logging.info(f' Writing to {output_file_name}')
     calendar_to_file(cal, output_file_name)
+    print(f'Generated {output_file_name}')
