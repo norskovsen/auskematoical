@@ -22,7 +22,7 @@ def html_to_json(file_name):
         with open(file_name, 'rb') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')
     except FileNotFoundError:
-        print(f'{file_name} does not exist')
+        logging.warning(f' {file_name} does not exist')
         sys.exit(-1)
 
     courses_dict = {}
@@ -68,7 +68,7 @@ def get_event_from_dict(course, activity_name, activity_dict, academic):
     for week in activity_dict['weeks']:
         event = Event()
         event.add('summary', f'{course} ({activity_name})')
-        logging.info(f' Creating event:')
+        logging.info(f'  Creating event:')
         logging.info(f'\tName: {course} ({activity_name})')
 
         start_week, end_week = week.split('-')
@@ -147,6 +147,11 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.INFO)
 
     input_file_name = args.input_file_name
+    if not re.match(r'.*\.html\b', input_file_name.lower()):
+        msg = ' The input filename should end with the .html extension'
+        logging.warning(msg)
+        sys.exit(-1)
+
     academic = not args.notacademic
 
     if args.output:
@@ -154,12 +159,17 @@ if __name__ == '__main__':
     else:
         output_file_name = STANDARD_OUTPUT_FILE_NAME
 
-    logging.info(f'Parsing: {input_file_name}')
+    if not re.match(r'.*\.ics\b', output_file_name.lower()):
+        msg = ' The output filename should end with the .ics extension'
+        logging.warning(msg)
+        sys.exit(-1)
+
+    logging.info(f' Parsing: {input_file_name}')
 
     courses_dict = html_to_json(input_file_name)
 
-    logging.info(f'Generating ical file')
+    logging.info(' Generating ics file:')
     cal = make_cal(courses_dict, academic)
 
-    logging.info(f'Writing to {output_file_name}')
+    logging.info(f' Writing to {output_file_name}')
     calendar_to_file(cal, output_file_name)
