@@ -8,6 +8,10 @@ Since AU added a login page to get course information. It has not been possible 
 
 
 
+![step1](img/preview.png)
+
+
+
 I have only tested the script on Google Calendar and thus I don't know whether it works on other Calendar programs such as iCal on MacOS. 
 
 
@@ -36,7 +40,7 @@ Download the HTML page by pressing Ctrl+S
 
 **Step 3:**
 
-Save the HTML page in the same folder as this repo
+Save the HTML page in the same folder as this repo as `skema.html`
 
 ![step3](img/step3.png)
 
@@ -56,12 +60,35 @@ pip3 install -r requirements.txt
 
 Run
 
-```
-python3 skema.py
+```bash
+python3 skema.py skema.html
 ```
 
 
 
 **Step 6:**
 
-Success you now have a skema.ics file which you can use in your favorite calendar program
+Success you now have a `skema.ics` file which you can use in your favorite calendar program
+
+
+
+## Command line arguments
+
+The script supports the following command line arguments: 
+
+```bash
+usage: skema.py [-h] [-l] [-n] [-o OUTPUT] filename
+
+Convert skema HTML to ical file
+
+positional arguments:
+  filename              the filename of the input file ending in .html
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l, --logging         show the log
+  -n, --notacademic     turn off academic starting time
+  -o OUTPUT, --output OUTPUT
+                        output file name ending in .ics
+```
+

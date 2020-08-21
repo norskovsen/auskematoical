@@ -1,5 +1,7 @@
+import sys
 import re
 import logging
+import argparse
 
 from bs4 import BeautifulSoup
 from icalendar import Calendar, Event, vText
@@ -7,9 +9,8 @@ from datetime import datetime
 
 WEEKDATES = ["Mandag", "Tirsdag", "Onsdag",
              "Torsdag", "Fredag", "Lørdag", "Søndag"]
-INPUT_FILE_NAME = 'Skema-Studerende.html'
-OUTPUT_FILE_NAME = 'skema.ics'
-LOG = False
+
+STANDARD_OUTPUT_FILE_NAME = 'skema.ics'
 
 
 def fix_spacing(string):
@@ -17,8 +18,12 @@ def fix_spacing(string):
 
 
 def html_to_json(file_name):
-    with open(file_name, 'rb') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
+    try:
+        with open(file_name, 'rb') as f:
+            soup = BeautifulSoup(f.read(), 'html.parser')
+    except FileNotFoundError:
+        print(f'{file_name} does not exist')
+        sys.exit(-1)
 
     courses_dict = {}
     courses = soup.find_all('h3')
@@ -57,7 +62,7 @@ def get_datetime(start_week, day, time, minutes):
     return datetime.strptime(day_str, "%Y-W%W-%w-%H:%M")
 
 
-def get_event_from_dict(course, activity_name, activity_dict):
+def get_event_from_dict(course, activity_name, activity_dict, academic):
     events = []
 
     for week in activity_dict["weeks"]:
@@ -81,7 +86,13 @@ def get_event_from_dict(course, activity_name, activity_dict):
 
         logging.info(f'Time: {start_time}:15-{end_time}:00')
 
-        event.add('dtstart', get_datetime(start_week, day, start_time, '15'))
+        start_min = '15'
+        if not academic:
+            start_min = '00'
+
+        event.add('dtstart', get_datetime(start_week, day,
+                                          start_time, start_min))
+
         event.add('dtend', get_datetime(start_week, day, end_time, '00'))
         event.add('rrule', {"FREQ": "WEEKLY",
                             "INTERVAL": 1,
@@ -93,7 +104,7 @@ def get_event_from_dict(course, activity_name, activity_dict):
     return events
 
 
-def make_cal(courses_dict):
+def make_cal(courses_dict, academic):
     cal = Calendar()
     cal.add('version', '2.0')
 
@@ -102,7 +113,8 @@ def make_cal(courses_dict):
             for activity_dict in activity_list:
                 for event in get_event_from_dict(course,
                                                  activity,
-                                                 activity_dict):
+                                                 activity_dict,
+                                                 academic):
                     cal.add_component(event)
     return cal
 
@@ -113,15 +125,40 @@ def calendar_to_file(cal, file_name):
 
 
 if __name__ == '__main__':
-    if LOG:
+    parser = argparse.ArgumentParser(
+             description='Convert skema HTML to ical file')
+
+    parser.add_argument('input_file_name', metavar='filename',
+                        help='the filename of the input file ending in .html')
+
+    parser.add_argument('-l', '--logging', action='store_true',
+                        help='show the log')
+
+    parser.add_argument('-n', '--notacademic', action='store_true',
+                        help='turn off academic starting time')
+
+    parser.add_argument('-o', '--output',
+                        help='output file name ending in .ics')
+
+    args = parser.parse_args()
+
+    if args.logging:
         logging.basicConfig(level=logging.INFO)
 
-    logging.info(f'Parsing: {INPUT_FILE_NAME}')
+    input_file_name = args.input_file_name
+    academic = not args.notacademic
 
-    courses_dict = html_to_json(INPUT_FILE_NAME)
+    if args.output:
+        output_file_name = args.output
+    else:
+        output_file_name = STANDARD_OUTPUT_FILE_NAME
+
+    logging.info(f'Parsing: {input_file_name}')
+
+    courses_dict = html_to_json(input_file_name)
 
     logging.info(f'Generating ical file')
-    cal = make_cal(courses_dict)
+    cal = make_cal(courses_dict, academic)
 
-    logging.info(f'Writing to {OUTPUT_FILE_NAME}')
-    calendar_to_file(cal, OUTPUT_FILE_NAME)
+    logging.info(f'Writing to {output_file_name}')
+    calendar_to_file(cal, output_file_name)
