@@ -1,10 +1,12 @@
+import re
+
 from bs4 import BeautifulSoup
 from icalendar import Calendar, Event, vText
 from datetime import datetime
 
 WEEKDATES = ["Mandag", "Tirsdag", "Onsdag",
              "Torsdag", "Fredag", "Lørdag", "Søndag"]
-INPUT_FILE_NAME = 'Skema - Studerende.html'
+INPUT_FILE_NAME = 'Skema-Studerende.html'
 OUTPUT_FILE_NAME = 'skema.ics'
 LOG = False
 
@@ -12,6 +14,10 @@ LOG = False
 def log(string):
     if LOG:
         print(string)
+
+
+def fix_spacing(string):
+    return re.sub(r'\s+', ' ', string).strip()
 
 
 def html_to_json(file_name):
@@ -30,13 +36,13 @@ def html_to_json(file_name):
 
         for activity in activities:
             activity_list = []
-            table = activities[0].find_next_sibling('table')
+            table = activity.find_next_sibling('table')
             for tr in table.find_all('tr'):
                 activity_dict = {}
                 tds = tr.find_all('td')
                 activity_dict["day"] = tds[1].get_text()
                 activity_dict["time"] = tds[2].get_text()
-                activity_dict["place"] = tds[3].get_text()
+                activity_dict["place"] = fix_spacing(tds[3].get_text())
                 activity_dict["weeks"] = list(tds[4].get_text().split()[1:])
                 activity_list.append(activity_dict)
             course_dict[activity.get_text()] = activity_list
@@ -76,7 +82,6 @@ def get_event_from_dict(course, activity_name, activity_dict):
         event.add('rrule', {"FREQ": "WEEKLY",
                             "INTERVAL": 1,
                             "COUNT": end_week-start_week+1})
-        # print(event['rrule'])
         event['location'] = vText(place)
 
         events.append(event)
