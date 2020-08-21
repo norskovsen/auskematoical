@@ -1,4 +1,5 @@
 import re
+import logging
 
 from bs4 import BeautifulSoup
 from icalendar import Calendar, Event, vText
@@ -9,11 +10,6 @@ WEEKDATES = ["Mandag", "Tirsdag", "Onsdag",
 INPUT_FILE_NAME = 'Skema-Studerende.html'
 OUTPUT_FILE_NAME = 'skema.ics'
 LOG = False
-
-
-def log(string):
-    if LOG:
-        print(string)
 
 
 def fix_spacing(string):
@@ -63,20 +59,28 @@ def get_datetime(start_week, day, time, minutes):
 
 def get_event_from_dict(course, activity_name, activity_dict):
     events = []
+
     for week in activity_dict["weeks"]:
         event = Event()
         event.add('summary', f'{course} ({activity_name})')
+        logging.info(f'Creating event: {course} ({activity_name})')
 
         start_week, end_week = week.split('-')
         if ',' in end_week:
             end_week = end_week[:-1]
 
         start_week, end_week = int(start_week), int(end_week)
+        logging.info(f'Weeks: {start_week}-{end_week}')
 
         day = activity_dict["day"]
         place = activity_dict["place"]
+        logging.info(f'Day: {day}')
+        logging.info(f'Place: {place}')
 
         start_time, end_time = map(int, activity_dict["time"].split(' - '))
+
+        logging.info(f'Time: {start_time}:15-{end_time}:00')
+
         event.add('dtstart', get_datetime(start_week, day, start_time, '15'))
         event.add('dtend', get_datetime(start_week, day, end_time, '00'))
         event.add('rrule', {"FREQ": "WEEKLY",
@@ -85,6 +89,7 @@ def get_event_from_dict(course, activity_name, activity_dict):
         event['location'] = vText(place)
 
         events.append(event)
+
     return events
 
 
@@ -108,11 +113,15 @@ def calendar_to_file(cal, file_name):
 
 
 if __name__ == '__main__':
-    log(f'Parsing: {INPUT_FILE_NAME}')
+    if LOG:
+        logging.basicConfig(level=logging.INFO)
+
+    logging.info(f'Parsing: {INPUT_FILE_NAME}')
+
     courses_dict = html_to_json(INPUT_FILE_NAME)
 
-    log(f'Generating ical file')
+    logging.info(f'Generating ical file')
     cal = make_cal(courses_dict)
 
-    log(f'Writing to {OUTPUT_FILE_NAME}')
+    logging.info(f'Writing to {OUTPUT_FILE_NAME}')
     calendar_to_file(cal, OUTPUT_FILE_NAME)
