@@ -68,27 +68,28 @@ def get_event_from_dict(course, activity_name, activity_dict, academic):
     for week in activity_dict['weeks']:
         event = Event()
         event.add('summary', f'{course} ({activity_name})')
-        logging.info(f'Creating event: {course} ({activity_name})')
+        logging.info(f' Creating event:')
+        logging.info(f'\tName: {course} ({activity_name})')
 
         start_week, end_week = week.split('-')
         if ',' in end_week:
             end_week = end_week[:-1]
 
         start_week, end_week = int(start_week), int(end_week)
-        logging.info(f'Weeks: {start_week}-{end_week}')
+        logging.info(f'\tWeeks: {start_week}-{end_week}')
 
         day = activity_dict['day']
         place = activity_dict['place']
-        logging.info(f'Day: {day}')
-        logging.info(f'Place: {place}')
+        logging.info(f'\tDay: {day}')
+        logging.info(f'\tPlace: {place}')
 
         start_time, end_time = map(int, activity_dict['time'].split(' - '))
-
-        logging.info(f'Time: {start_time}:15-{end_time}:00')
 
         start_min = '15'
         if not academic:
             start_min = '00'
+
+        logging.info(f'\tTime: {start_time}:{start_min}-{end_time}:00')
 
         event.add('dtstart', get_datetime(start_week, day,
                                           start_time, start_min))
