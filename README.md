@@ -4,11 +4,15 @@
 
 
 
-Since AU added a login page to get course information it has not been possible to export the course information to your own calendar. This is now possible using this script on your own computer without sending any login information to me. You just download the html page yourself and use the `skema.py` to get a `skema.ics` file which can be used in your favorite calendar program such as Google Calendar.
+Since AU added a login page to get course information. It has not been possible to export the course information to your own calendar using existing third party tools. This is now possible using this script on your own computer without sending any login information to me. You just download the html page yourself and use the `skema.py` to get a `skema.ics` file which can be used in your favorite calendar program such as Google Calendar.
 
 
 
-I have only tested the script on Google Calendar and thus I don't know whether it works on other Calendar programs such as iCal on MacOS
+I have only tested the script on Google Calendar and thus I don't know whether it works on other Calendar programs such as iCal on MacOS. 
+
+
+
+If any mistakes are found please report them as issues or make a pull request. It should be easy to understand as it comply with the PEP8 conventions.
 
 
 
