@@ -47,7 +47,7 @@ python3 skema.py
 Enter auID press enter and the your password and press enter
 
 ```
-Whats your auID? au553262
+Whats your auID? auXXXXXX
 Password: 
 ```
 
