@@ -117,7 +117,7 @@ def get_event_from_dict(course, activity_name, activity_dict, academic):
         if ',' in end_week:
             end_week = end_week[:-1]
 
-        start_week, end_week = int(start_week), int(end_week)
+        start_week, end_week = int(start_week)+1, int(end_week)+1
         logging.info(f'\tWeeks: {start_week}-{end_week}')
 
         day = activity_dict['day']
