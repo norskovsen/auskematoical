@@ -113,12 +113,20 @@ def get_event_from_dict(course, activity_name, activity_dict, academic):
         logging.info(f'  Creating event:')
         logging.info(f'\tName: {course} ({activity_name})')
 
-        start_week, end_week = week.split('-')
+        if len(week.split('-')) == 1:
+            start_week = week
+            end_week = week
+        else:
+            start_week, end_week = week.split('-')
+
+        if ',' in start_week:
+            start_week = start_week[:-1]
+
         if ',' in end_week:
             end_week = end_week[:-1]
 
         start_week, end_week = int(start_week)+1, int(end_week)+1
-        logging.info(f'\tWeeks: {start_week}-{end_week}')
+        logging.info(f'\tWeeks: {start_week-1}-{end_week-1}')
 
         day = activity_dict['day']
         place = activity_dict['place']
